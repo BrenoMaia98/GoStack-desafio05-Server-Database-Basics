@@ -21,10 +21,12 @@ class CreateTransactionService {
     const transactionRepo = getRepository(Transaction);
     const categoryRepo = getRepository(Category);
 
-    let categoryObject = await categoryRepo.findOne({ title: category });
-
+    let categoryObject = await categoryRepo.findOne({
+      where: { title: category },
+    });
+    console.log({ categoryObject });
     if (!categoryObject) {
-      categoryObject = categoryRepo.create({ title });
+      categoryObject = categoryRepo.create({ title: category });
       await categoryRepo.save(categoryObject);
     }
 
