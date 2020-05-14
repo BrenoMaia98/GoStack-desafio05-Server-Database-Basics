@@ -1,8 +1,9 @@
-import { getRepository } from 'typeorm';
+import { getRepository, getCustomRepository } from 'typeorm';
 import AppError from '../errors/AppError';
 
 import Transaction from '../models/Transaction';
 import Category from '../models/Category';
+import TransactionsRepository from '../repositories/TransactionsRepository';
 
 interface Request {
   category: string;
@@ -18,13 +19,20 @@ class CreateTransactionService {
     value,
     type,
   }: Request): Promise<Transaction> {
-    const transactionRepo = getRepository(Transaction);
+    const transactionRepo = getCustomRepository(TransactionsRepository);
     const categoryRepo = getRepository(Category);
+
+    const balance = await transactionRepo.getBalance();
+
+    if (balance.total < value && type === 'outcome')
+      throw new AppError(
+        `Cannot create withdraw transaction greater than ${balance.total}!`,
+      );
 
     let categoryObject = await categoryRepo.findOne({
       where: { title: category },
     });
-    console.log({ categoryObject });
+
     if (!categoryObject) {
       categoryObject = categoryRepo.create({ title: category });
       await categoryRepo.save(categoryObject);
