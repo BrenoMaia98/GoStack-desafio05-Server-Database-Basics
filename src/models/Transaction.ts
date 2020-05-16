@@ -20,15 +20,15 @@ class Transaction {
   @Column('varchar')
   type: 'income' | 'outcome';
 
-  @Column('int')
+  @Column('real')
   value: number;
-
-  @Column('varchar')
-  category_id: string;
 
   @ManyToOne(() => Category)
   @JoinColumn({ name: 'category_id' })
   category: Category;
+
+  @Column('varchar')
+  category_id: string;
 
   @CreateDateColumn()
   created_at: Date;
